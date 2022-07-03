@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 git config --global user.email "ncsu.nickmo@gmail.com"
 git config --global user.name "Nick"
 
-1. You will NOT have to use the "Build Tab" in Rstudio.
+1. You will NOT have to use the "Build Tab" in Rstudio
 2. On Github, Settings -> Pages -> Branch:Main -> root 
 3. On computer, in docs, make a copy of rmd / html and rename them to index (no caps)
+4. If webpage does not update, you may have to un-link it and re-link
