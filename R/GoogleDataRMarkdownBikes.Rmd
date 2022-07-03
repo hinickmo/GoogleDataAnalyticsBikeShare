@@ -1,0 +1,336 @@
+---
+title: "Google Data Analytics Capstone Project <br> Cyclistic Bike Share Co."
+author: "Nicholas Moore"
+date: '2022-07-02'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**Background** The following case study was provided by Coursera’s Google Data Analytics course. Analysts are to follow to the steps of the data analysis process (ask, prepare, process, analyze, share,and act) for a dataset that represents a fictional company (Cyclistic Bike-Share). Public data for this study was provided by [Motivate International Inc.](https://divvy-tripdata.s3.amazonaws.com/index.html) under this [Licence](https://ride.divvybikes.com/data-license-agreement). Results are not guaranteed to be perfect as I am still a novice. Feel free to follow along with my code chunks if you are stuck! Good luck and have fun!! :)
+
+## PHASE 1 - ASK
+
+**What topic are you exploring?** In this case study, I will explore Cyclistic’s bike-sharing company to compare usage data of casual riders versus annual members with the aim of uncovering insights and providing recommendations on how to turn casual riders to paying members.
+
+**What is the problem you are trying to solve?** The issue on hand is how to maximize ridership by converting casual riders to annual paying members. This includes identifying marketing strategies including marketing channels that casual riders may be most receptive to. The company’s director of marketing believes that the company’s long-term viability rests on this endeavor.
+
+**Specific task:** Determine how annual members and casual riders use Cyclistic bikes differently.
+
+**What metrics will you use to measure your data to achieve your objective? Who are the stakeholders?**
+
+Company: Cyclistic - 5,824 bicycles and 692 docking stations
+Lily Moreno - Director of Marketing, Project Manager Cyclistic Executive team
+The metrics to be used to measure data include the ff:
+
+Most used ride type
+Aggregate 7-day usage behavior
+Most used start and end stations
+Who is your audience for this analysis and how does this affect your analysis process and presentation? The audience for this presentation is Lily Moreno, Director of Marketing, and the Cyclistic Executive team. With this in mind, the presentation needs to be as detailed as possible without sacrificing clarity so that the final recommendation can come across to the decision-makers coherently.
+
+**How will this data help your stakeholders make decisions?** 
+The result of this analysis will help stakeholders decide on the recommendations in this report including marketing strategies ai is your data located?** Data is owned and provided publicly by the first-part company [Motivate International Inc.](https://divvy-tripdata.s3.amazonaws.com/index.html) under this [Licence](https://ride.divvybikes.com/data-license-agreement).
+
+**How is the data organized?** Data is kept in csv files separated individually by months between April, 2021 and March, 2022. All files contain usage of Cyclistic bikes including ride type, start and end stations (station IDs and long/lat coordinates), start and end times, as well as whether users are members or casual riders.
+
+**Are there issues with bias or credibility in this data? Does your data ROCCC?** Yes!
+
+**R**eliable - Despite the absence of station identities in about 25% of the transactions, overall, data remains reliable as coordinates are present throughout all transactions. If need be, station names and IDs could be identified using station coordinate values.
+
+**O**riginal - Data is proprietary to Cyclistic.Data is coming from the original source.
+
+**C**omprehensive - We are primarily looking at 2021-022 data, but record goes back to 2013. In 2021 alone, there were 5.55M transactions–giving us a wealth of data to work with and possibly provide accurate results even with a sample size.
+
+**C**urrent - The data remains current and valid to come up with plausible recommendations given almost similar circumstances between 2021 and 2022 in terms of mobility and economic behavior amid the pandemic.
+
+**C**ited - As mentioned, we are working with first-party data generated from Cyclistic’s bike-sharing technology.
+
+**How are you addressing licensing, privacy, security, and accessibility?** The data downloaded will be stored in my local drive and the original data will remain on the company website. Raw data will not be shared by any means and processed data will only be displayed as tables, tibbles and visualization—keeping the raw data inaccessible to the public.
+
+**How did you verify the data’s integrity?** The data variables for each monthly dataset were compared and confirmed to be identical. Also, all nulls were removed from the final mutated dataset. Since the data comes directly from the company, the data is considered reliable and unaltered to be biased. 
+
+**How does it help you answer your question?** In order to create a singular dataset, each of the column variable types throughout all individual data files will have to match. Removing nulls will also remove possible inconsistencies with my results.
+
+**Are there any problems with the data?** The data appears to have been primarily cleaned with the exception of some transactions having missing data. Rows will have to be omitted with missing data. Also, a plethora of ride duration values appear to be very short (less than 10 seconds). This are likely not representative of a normal ride and they will be excluded.
+
+
+## PHASE 3 - PROCESS
+
+**The following steps were used to clean and manipulate the data:**
+
+**Began by installing and loading packages**
+```{r message=FALSE, warning=FALSE}
+#Essential library kits
+library(pacman)
+library(geosphere)
+library(xlsx)
+library(magrittr)
+library(ggpol)
+library(lubridate)
+library(janitor)
+library(dplyr)
+library(GGally)
+library(ggplot2)
+library(ggthemes)
+library(rmarkdown)
+library(shiny)
+library(stringr)
+library(tidyr)
+library(skimr)
+library(scales)
+library(reshape2)
+library(ggthemes)
+```
+
+**Setting my directory so I could import the data into R**
+```{r message=FALSE, warning=FALSE}
+#I had to manually flip all of the dashes 
+setwd('C:/Users/Siggi/Downloads/Git')
+```
+med at casual riders encouraging them to convert to annual membership.
+
+
+
+## PHASE 2 - PREPARE
+
+**Where
+**Importing case study data**
+```{r message=FALSE, warning=FALSE}
+#Importing and renaming the csv files
+April2021 <- read.csv('202103_Apr_21.csv')
+May2021 <- read.csv('202104_May_21.csv')
+June2021 <- read.csv('202105_Jun_21.csv')
+July2021 <- read.csv('202106_Jul_21.csv')
+August2021 <- read.csv('202107_Aug_21.csv')
+September021 <- read.csv('202108_Sep_21.csv')
+October2021 <- read.csv('202109_Oct_21.csv')
+November2021 <- read.csv('202110_Nov_21.csv')
+December2021 <- read.csv('202111_Dec_21.csv')
+January2022 <- read.csv('202112_Jan_22.csv')
+February2022 <- read.csv('202201_Feb_22.csv')
+March2022 <- read.csv('202202_Mar_22.csv')
+```
+
+**Binding each dataset into one single dataset. They all have identical columns with shared data types so binding will work.**
+
+```{r message=FALSE, warning=FALSE}
+bike_data <- bind_rows(April2021, May2021, June2021, July2021, August2021, September021, October2021, November2021, December2021, January2022, February2022, March2022)
+
+head(bike_data)
+```
+
+
+**Adding a new column**
+```{r message=FALSE, warning=FALSE}
+#Making a new weekday column WITHOUT the time included
+bike_data$weekday <- as.Date(bike_data$started_at)
+```
+
+**I added more manipulated columns to the dataset:**
+Ride duration (in minutes), month of the year, day of the week, hour of day
+```{r message=FALSE, warning=FALSE}
+bike_data_v2<- bike_data %>%
+  mutate(ride_duration = as.numeric(difftime(ended_at, started_at, unit="mins"))) %>%
+  mutate(ride_duration_hours = as.numeric(difftime(ended_at, started_at, unit="hours"))) %>% 
+  mutate(ride_distance = distHaversine(cbind(start_lng, start_lat), cbind(end_lng, end_lat))) %>%
+  mutate(ride_year = year(started_at)) %>%
+  mutate(ride_month = month(started_at, label = TRUE)) %>%
+  mutate(day_of_week = weekdays(weekday)) %>%   
+  mutate(hour_of_day = hour(started_at))
+```
+
+
+```{r message=FALSE, warning=FALSE}
+#to calculate number of NA values
+sum(is.na(bike_data_v2))
+```{r}
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+#deleting all NA values
+bike_data_v3 <- na.omit(bike_data_v2)
+```
+
+
+```{r message=FALSE, warning=FALSE}
+#checking that NA values are now zero 
+sum(is.na(bike_data_v3))
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+#with janitor kit, removing blank cells (I think this worked best for numeric)
+bike_data_v3 %>% remove_empty("rows")
+```
+
+#this got rid of pesky empty cells in station columns
+```{r message=FALSE, warning=FALSE}
+bike_data_v3 <- with(bike_data_v3, bike_data_v3[!(start_station_id == "" | is.na(start_station_id)), ])
+bike_data_v3 <- with(bike_data_v3, bike_data_v3[!(end_station_id == "" | is.na(end_station_id)), ])
+```
+
+**THIS IS HOW TO DELETE ROWS WITH CONDITIONS**
+I deleted numeric values in a numeric column under 15 seconds (.25 minutes). This is because these are likely not "real" representations of rikes.
+```{r message=FALSE, warning=FALSE}
+bike_data_v4 <- bike_data_v3[!(bike_data_v3$ride_duration<0.25),]
+skim(bike_data_v4)
+```
+
+**I did not delete the ride_distance of 0 because those could have been people who left and returned to the same station**
+
+
+## PHASE 4 & 5 - ANALYZE & SHARE
+
+
+```{r message=FALSE, warning=FALSE}
+#I run this before making my graph. This will prevent the y-axis from showing scientific notation numbers
+options(scipen=5)
+```
+
+#applying the font type I would like for my figures
+```{r message=FALSE, warning=FALSE}
+windowsFonts(A = windowsFont("Times New Roman"))
+```
+
+
+**FIGURE 1:** 
+Bar graph for casual vs. member weekday ride amounts 
+```{r}
+ggplot(data=bike_data_v4)+
+  geom_bar(mapping = aes(x=day_of_week,fill=member_casual))+
+  scale_x_discrete(limits = c("Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"),
+                   labels = c("Sun","Mon","Tue","Wed","Thu","Fri","Sat"))+ #the discrete lines show how I rearranges the x-axis labels to go from sun-sat and be renamed to shorter text
+  facet_wrap(~member_casual)+ 
+  theme(strip.text = element_blank())+
+  labs(title="Weekly Ride Amounts by Cyclist Type", subtitle="Casual Riders vs. Members",
+       x = "Day of the Week",
+       y = "Number of Overall Rides",
+       caption="Data Provided by Google Capstone Project")+
+  scale_y_continuous(limits=c(0,500000), labels = scales::comma)+ #this combined scale_y_continuous(limits=c(0,500000)  AND scale_y_continuous(labels=comma)
+  theme_fivethirtyeight(base_size = 12, base_family = "A")+
+  labs(fill='Rider Type')+
+  theme(axis.title = element_text(face="bold"), strip.text = element_blank())
+```
+
+
+
+**FIGURE 2:** Bar graph for casual vs. member monthly ride amounts
+```{r}
+ggplot(data=bike_data_v4)+
+  geom_bar(mapping = aes(x=ride_month,fill=member_casual))+
+  scale_x_discrete(limits = c("Mar","Apr","May","Jun","Jul","Aug","Sep", "Oct", "Nov", "Dec", "Jan", "Feb"),
+                   labels = c("Mar21","Apr21","May21","Jun21","Jul21","Aug21","Sep21", "Oct21", "Nov21", "Dec21", "Jan22", "Feb22"))+ #the discrete lines show how I rearranges the x-axis labels to go from sun-sat and be renamed to shorter text
+  facet_wrap(~member_casual)+ 
+  theme(strip.text = element_blank())+
+  labs(title="Monthly Ride Amounts by Cyclist Type", subtitle="Casual Riders vs. Members",
+       x = "Month",
+       y = "Number of Overall Rides",
+       caption="Data Provided by Google Capstone Project")+
+  scale_y_continuous(limits=c(0,400000), labels = scales::comma)+ #this combined scale_y_continuous(limits=c(0,500000)  AND scale_y_continuous(labels=comma)
+  theme_fivethirtyeight(base_size = 12, base_family = "A")+
+  labs(fill='Rider Type')+
+  theme(axis.title = element_text(face="bold"), strip.text = element_blank())
+```
+
+
+**FIGURE 3:** Average ride duration for members vs casual riders
+```{r}
+ggplot(data=bike_data_v4, aes(x = member_casual, y = ride_duration)) + 
+  stat_summary(geom = "bar", fun.y = "mean")+
+  coord_flip()+
+  scale_x_discrete(limits = c("member","casual"),
+                   labels = c("Member", "Casual"))+
+  labs(title="Average Ride Duration by Cyclist Type", subtitle="Casual Riders vs. Members",
+       x = "Rider Type",
+       y = "Average Ride Duration (in minutes)",
+       caption="Data Provided by Google Capstone Project")+
+  theme_fivethirtyeight(base_size = 12, base_family = "A")+
+  theme(axis.title = element_text(face="bold"), strip.text = element_blank())
+```
+
+
+**Prepping for Figure 4**
+```{r}
+#removing columns that are unnecessary for graph
+bike_data_removedcols <- select(bike_data_v4, -c(ride_id:end_lng, weekday, ride_distance, ride_year, day_of_week, hour_of_day, ride_duration))
+```
+```{r}
+#grouping the y and x axis's & then putting the sum of ride_duration next to those two groupings                 
+bike_data_removedcols_V2 <- bike_data_removedcols %>% 
+  group_by(member_casual, ride_month) %>%
+  summarise(ride_duration_sum=sum(ride_duration_hours))
+```
+
+
+**FIGURE 4:** Total Monthly Ride Times By Cyclist Type
+```{r}
+#yay done                
+ggplot(data = bike_data_removedcols_V2, aes(ride_month, ride_duration_sum, fill=member_casual, group = member_casual))+
+  geom_col(position = position_dodge())+
+  scale_x_discrete(limits = c("Apr","May","Jun","Jul","Aug","Sep","Oct", "Nov","Dec","Jan","Feb","Mar"),
+                   labels = c("Apr21","May21","Jun21","Jul21","Aug21","Sep21","Oct21", "Nov21","Dec21","Jan22","Feb22","Mar22"))+
+  theme(strip.text = element_blank())+
+  labs(title="Total Monthly Ride Durations by Cyclist Type", subtitle="April 2021 - March 2022",
+       x = "Month & Year",
+       y = "Overall Ride Duration (in hours)",
+       caption="Data Provided by Google Capstone Project")+
+  scale_y_continuous(breaks = c(0,40000,80000,120000,160000,200000), labels = scales::comma)+ #this combined scale_y_continuous(limits=c(0,500000)  AND scale_y_continuous(labels=comma)
+  theme_fivethirtyeight(base_size = 12, base_family = "A")+
+  labs(fill='Rider Type')+
+  theme(axis.title = element_text(face="bold"), strip.text = element_blank())
+```
+
+
+**FIGURE 5:** Monthly Ride Counts by Cyclist Type
+```{r}
+ggplot(data=bike_data_v4)+
+  geom_bar(mapping = aes(x = ride_month, fill = member_casual))+
+  scale_x_discrete(limits = c("Apr","May","Jun","Jul","Aug","Sep","Oct", "Nov","Dec","Jan","Feb","Mar"),
+                   labels = c("Apr21","May21","Jun21","Jul21","Aug21","Sep21","Oct21", "Nov21","Dec21","Jan22","Feb22","Mar22"))+
+  theme(strip.text = element_blank())+
+  labs(title="Monthly Ride Amounts by Cyclist Type", subtitle="April 2021 - March 2022",
+       x = "Month",
+       y = "Number of Overall Rides",
+       caption="Data Provided by Google Capstone Project")+
+  scale_y_continuous(breaks = c(0,100000, 200000, 300000, 400000, 500000, 600000, 700000), labels = scales::comma)+ #this combined scale_y_continuous(limits=c(0,500000)  AND scale_y_continuous(labels=comma)
+  theme_fivethirtyeight(base_size = 12, base_family = "A")+
+  labs(fill='Rider Type')+
+  theme(axis.title = element_text(face="bold"), strip.text = element_blank())
+```
+  
+  
+## PHASE 6 - ACT
+**Key takeaways and recommendations based upon the insights gained from data analyses:**
+
+* Our members have more total rides on average during weekdays whereas casual members ride more often on weekends.
+
+* July is the peak month for rides whereas January is the lowest month.
+
+* On average, our members take shorter rides than our casual customers.
+- Surprisingly, during the winter season, members have slightly longer rides than casual members.
+
+* Total monthly rides count per month for members is more consistent than total monthly ride count for casual riders.
+- Casual riders experience a steep drop off in rides in the months of November 2021 - February 2022 whereas our members only slightly decrease.
+
+
+**Recommendations:**
+
+1. Increase marketing strategies between peak usage months.
+* Offer a discount to friends which allows them to have their first ride free.
+
+2. Consider seasonal membership specials or exclusive discounts to encourage casual riders transition into members.
+
+3. Send promotions which demonstrate how much money can be saved when becoming a member.
+
+4. Offer unique annual plans which discounts based on personal bike usage
+* Allow an option to get an annual pass with a summer/winter discount.
+* Automatic discount for the top two months when ride duration is lowest.
+* Discount when reaching a total number of miles or hours in a month.
+
+
