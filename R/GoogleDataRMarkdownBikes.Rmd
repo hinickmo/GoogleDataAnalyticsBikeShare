@@ -4,7 +4,7 @@ author: "Nicholas Moore"
 date: '2022-07-02'
 output:
   prettydoc::html_pretty:
-    theme: cayman
+    theme: HPSTR
     highlight: github
 ---
 
@@ -59,7 +59,7 @@ The result of this analysis will help stakeholders decide on the recommendations
 **Are there any problems with the data?** The data appears to have been primarily cleaned with the exception of some transactions having missing data. Rows will have to be omitted with missing data. Also, a plethora of ride duration values appear to be very short (less than 10 seconds). This are likely not representative of a normal ride and they will be excluded.
 
 
-## PHASE 3 - PROCESS
+## PHASE 3 & 4 - PREPARE & PROCESS
 
 **The following steps were used to clean and manipulate the data:**
 
@@ -92,13 +92,8 @@ library(ggthemes)
 #I had to manually flip all of the dashes 
 setwd('C:/Users/Siggi/Downloads/BikeShareGit')
 ```
-med at casual riders encouraging them to convert to annual membership.
 
 
-
-## PHASE 2 - PREPARE
-
-**Where
 **Importing case study data**
 ```{r message=FALSE, warning=FALSE}
 #Importing and renaming the csv files
