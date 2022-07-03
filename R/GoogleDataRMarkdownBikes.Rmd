@@ -90,7 +90,7 @@ library(ggthemes)
 **Setting my directory so I could import the data into R**
 ```{r message=FALSE, warning=FALSE}
 #I had to manually flip all of the dashes 
-setwd('C:/Users/Siggi/Downloads/Git')
+setwd('C:/Users/Siggi/Downloads/BikeShareGit')
 ```
 med at casual riders encouraging them to convert to annual membership.
 

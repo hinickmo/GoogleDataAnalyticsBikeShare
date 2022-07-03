@@ -29,7 +29,7 @@ library(ggthemes)
 #setting directory to import files
 print(getwd())
 #i had to flip all of the dashes 
-setwd('C:/Users/Siggi/Downloads/Bike Project/Annual Bike Data 2021-2022')
+('C:/Users/Siggi/Downloads/BikeShareGit')
 
 
 April2021 <- read.csv('202103_Apr_21.csv')
@@ -52,7 +52,7 @@ head(bike_data)
 #newly learned, saving df to compress it
 #this was still too large to open when compressed :/
 getwd()
-save(bike_data, file = "C:/Users/Siggi/Downloads/Bike Project/Annual Bike Data 2021-2022/bike_data")
+save(bike_data, file = "C:/Users/Siggi/Downloads/BikeShareGit")
 
 #mutating columns to be the right data type
 bike_data <- mutate(bike_data, end_station_id = as.character(end_station_id),
